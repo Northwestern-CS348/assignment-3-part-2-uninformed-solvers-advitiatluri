@@ -27,33 +27,10 @@ fact: (position tile7 pos1 pos3)
 fact: (position tile6 pos2 pos3)
 fact: (position tile5 pos3 pos3)
 
-rule: ((position ?x ?a ?b) (position ?y ?a pos2)) -> (adjacent ?x ?y)
-rule: ((position ?x ?a pos2) (position ?y ?a ?b)) -> (adjacent ?x ?y)
-rule: ((position ?x pos2 ?b) (position ?y ?a ?b)) -> (adjacent ?x ?y)
-rule: ((position ?x ?a ?b) (position ?y pos2 ?b)) -> (adjacent ?x ?y)
-
-fact: (adjacent tile1 tile2)
-fact: (adjacent tile1 tile8)
-fact: (adjacent tile2 tile3)
-fact: (adjacent tile2 empty)
-fact: (adjacent tile3 tile4)
-fact: (adjacent tile4 empty)
-fact: (adjacent tile4 tile5)
-fact: (adjacent empty tile8)
-fact: (adjacent empty tile6)
-fact: (adjacent tile8 tile7)
-fact: (adjacent tile7 tile6)
-fact: (adjacent tile6 tile5)
-
-rule: ((adjacent ?x ?y)) -> (adjacent ?y ?x)
-
-rule: ((adjacent ?x empty) (position ?x ?a ?b) (position empty ?c ?d)) -> (movable ?x ?a ?b ?c ?d)
-rule: ((adjacent empty ?x) (position ?x ?a ?b) (position empty ?c ?d)) -> (movable ?x ?a ?b ?c ?d)
-
-fact: (movable tile2 pos2 pos1 pos2 pos2)
-fact: (movable tile4 pos3 pos2 pos2 pos2)
-fact: (movable tile6 pos2 pos3 pos2 pos2)
-fact: (movable tile8 pos1 pos2 pos2 pos2)
+rule: ((position empty ?x pos2) (position ?tile ?x ?y)) -> (movable ?tile ?x ?y ?x pos2)
+rule: ((position empty ?x ?y) (position ?tile ?x pos2)) -> (movable ?tile ?x pos2 ?x ?y)
+rule: ((position empty pos2 ?y) (position ?tile ?x ?y)) -> (movable ?tile ?x ?y pos2 ?y)
+rule: ((position empty ?x ?y) (position ?tile pos2 ?y)) -> (movable ?tile pos2 ?y ?x ?y)
 
 
 

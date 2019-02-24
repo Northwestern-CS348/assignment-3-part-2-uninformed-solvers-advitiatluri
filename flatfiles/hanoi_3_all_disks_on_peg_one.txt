@@ -26,24 +26,15 @@ fact: (on disk3 peg1)
 fact: (empty peg2)
 fact: (empty peg3)
 
-fact: (ontop disk2 disk3)
-fact: (ontop disk1 disk2)
-
-fact: (TopOfStack disk1)
+fact: (onDisk disk2 disk3)
+fact: (onDisk disk1 disk2)
 
 fact: (larger disk3 disk2)
 fact: (larger disk2 disk1)
 
-rule: ((larger ?x ?y) (larger ?y ?z)) -> (larger ?x ?z)
-
-fact: (larger disk3 disk1)
-
-fact: (movable disk1 peg1 peg2)
-fact: (movable disk1 peg1 peg3)
-
-rule: ((TopofStack ?x) (on ?x ?y) (empty ?z)) -> (movable ?x ?y ?z)
-rule: ((TopofStack ?x) (on ?x ?y) (on ?a ?b) (TopofStack ?a) (larger ?a ?x)) -> (movable ?x ?y ?b)
-
-rule: ((TopofStack ?x) (on ?x ?y)) -> (topOfPeg ?x ?y)
-
 fact: (topOfPeg disk1 peg1)
+
+rule: ((larger ?x ?y) (larger ?y ?z)) -> (larger ?x ?z)
+rule: ((topOfPeg ?x ?y) (empty ?z)) -> (movable ?x ?y ?z)
+rule: ((topOfPeg ?x ?y) (topOfPeg ?a ?b) (larger ?a ?x)) -> (movable ?x ?y ?b)
+rule: ((topOfPeg ?x ?y) (topOfPeg ?a ?b) (larger ?x ?a)) -> (movable ?a ?b ?y)

@@ -30,12 +30,12 @@ fact: (on disk5 peg1)
 fact: (on disk2 peg2)
 fact: (on disk1 peg3)
 
-fact: (ontop disk3 disk4)
-fact: (ontop disk4 disk5)
+fact: (onDisk disk3 disk4)
+fact: (onDisk disk4 disk5)
 
-fact: (TopofStack disk3)
-fact: (TopofStack disk2)
-fact: (TopofStack disk1)
+fact: (topOfPeg disk3 peg1)
+fact: (topOfPeg disk2 peg2)
+fact: (topOfPeg disk1 peg3)
 
 fact: (larger disk5 disk4)
 fact: (larger disk4 disk3)
@@ -43,23 +43,6 @@ fact: (larger disk3 disk2)
 fact: (larger disk2 disk1)
 
 rule: ((larger ?x ?y) (larger ?y ?z)) -> (larger ?x ?z)
-
-fact: (larger disk5 disk3)
-fact: (larger disk5 disk2)
-fact: (larger disk5 disk1)
-fact: (larger disk4 disk2)
-fact: (larger disk4 disk1)
-fact: (larger disk3 disk1)
-
-fact: (movable disk1 peg3 peg2)
-fact: (movable disk1 peg3 peg1)
-fact: (movable disk2 peg2 peg1)
-
-rule: ((TopofStack ?x) (on ?x ?y) (empty ?z)) -> (movable ?x ?y ?z)
-rule: ((TopofStack ?x) (on ?x ?y) (on ?a ?b) (TopofStack ?a) (larger ?a ?x)) -> (movable ?x ?y ?b)
-
-rule: ((TopofStack ?x) (on ?x ?y)) -> (topOfPeg ?x ?y)
-
-fact: (topOfPeg disk1 peg3)
-fact: (topOfPeg disk2 peg2)
-fact: (topOfPeg disk3 peg1)
+rule: ((topOfPeg ?x ?y) (empty ?z)) -> (movable ?x ?y ?z)
+rule: ((topOfPeg ?x ?y) (topOfPeg ?a ?b) (larger ?a ?x)) -> (movable ?x ?y ?b)
+rule: ((topOfPeg ?x ?y) (topOfPeg ?a ?b) (larger ?x ?a)) -> (movable ?a ?b ?y)

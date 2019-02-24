@@ -2,11 +2,12 @@ from game_master import GameMaster
 from read import *
 from util import *
 
+
 class TowerOfHanoiGame(GameMaster):
 
     def __init__(self):
         super().__init__()
-        
+
     def produceMovableQuery(self):
         """
         See overridden parent class method for more information.
@@ -51,7 +52,7 @@ class TowerOfHanoiGame(GameMaster):
                 pegDisklist.append(int(str(answer)[-1:]))
             pegDisklist.sort()
             finalList.append(tuple(pegDisklist))
-        return(tuple(finalList))
+        return (tuple(finalList))
 
     def makeMove(self, movable_statement):
         """
@@ -75,7 +76,7 @@ class TowerOfHanoiGame(GameMaster):
         oldPeg = str(sl[1])
         newPeg = str(sl[2])
         # Get disk under disk to be moved
-        ask = parse_input("fact: (ontop " + diskToMove + " ?x)")
+        ask = parse_input("fact: (onDisk " + diskToMove + " ?x)")
         answers = self.kb.kb_ask(ask)
         oldPegEmpty = False
         if answers:
@@ -90,38 +91,50 @@ class TowerOfHanoiGame(GameMaster):
         if topOfNewPeg:
             oldTopNewPeg = str(topOfNewPeg[0]).split()[-1]
             newPegEmpty = False
+        retract_statements = list()
+        assert_statements = list()
         # Remove disk from old peg
         statement = parse_input("fact: (on " + diskToMove + " " + oldPeg + ")")
-        self.kb.kb_retract(statement)
+        retract_statements.append(statement)
+        # self.kb.kb_retract(statement)
         # Remove relationship between disk and disk under it
         if not oldPegEmpty:
-            statement2 = parse_input("fact: (ontop " + diskToMove + " " + diskUnder + ")")
-            self.kb.kb_retract(statement2)
-            statement5 = parse_input("fact: (TopofStack " + diskUnder + ")")
-            self.kb.kb_assert(statement5)
+            statement2 = parse_input("fact: (onDisk " + diskToMove + " " + diskUnder + ")")
+            retract_statements.append(statement2)
+            # self.kb.kb_retract(statement2)
+            statement5 = parse_input("fact: (topOfPeg " + diskUnder + " " + oldPeg + ")")
+            assert_statements.append(statement5)
+            # self.kb.kb_assert(statement5)
         else:
             statement7 = parse_input("fact: (empty " + oldPeg + ")")
-            self.kb.kb_assert(statement7)
+            assert_statements.append(statement7)
+            # self.kb.kb_assert(statement7)
         # Remove old top of stack
-        statement3 = parse_input("fact: (TopofStack " + diskToMove + ")")
-        self.kb.kb_retract(statement3)
+        statement3 = parse_input("fact: (topOfPeg " + diskToMove + " " + oldPeg + ")")
+        retract_statements.append(statement3)
+        # self.kb.kb_retract(statement3)
         # Add disk to newPeg
         statement8 = parse_input("fact: (on " + diskToMove + " " + newPeg + ")")
-        self.kb.kb_assert(statement8)
-        statement9 = parse_input("fact: (TopofStack " + diskToMove + ")")
-        self.kb.kb_assert(statement9)
+        assert_statements.append(statement8)
+        # self.kb.kb_assert(statement8)
+        statement9 = parse_input("fact: (topOfPeg " + diskToMove + " " + newPeg + ")")
+        assert_statements.append(statement9)
+        # self.kb.kb_assert(statement9)
         if not newPegEmpty:
-            statement10 = parse_input("fact: (ontop " + diskToMove + " " + oldTopNewPeg + ")")
-            self.kb.kb_assert(statement10)
-            statement11 = parse_input("fact: (TopofStack " + oldTopNewPeg + ")")
-            self.kb.kb_retract(statement11)
+            statement10 = parse_input("fact: (onDisk " + diskToMove + " " + oldTopNewPeg + ")")
+            assert_statements.append(statement10)
+            # self.kb.kb_assert(statement10)
+            statement11 = parse_input("fact: (topOfPeg " + oldTopNewPeg + " " + newPeg + ")")
+            retract_statements.append(statement11)
+            # self.kb.kb_retract(statement11)
         else:
             statement12 = parse_input("fact: (empty " + newPeg + ")")
-            self.kb.kb_retract(statement12)
-
-
-
-
+            retract_statements.append(statement12)
+            # self.kb.kb_retract(statement12)
+        for s in retract_statements:
+            self.kb.kb_retract(s)
+        for s in assert_statements:
+            self.kb.kb_assert(s)
 
     def reverseMove(self, movable_statement):
         """
@@ -137,6 +150,7 @@ class TowerOfHanoiGame(GameMaster):
         sl = movable_statement.terms
         newList = [pred, sl[0], sl[2], sl[1]]
         self.makeMove(Statement(newList))
+
 
 class Puzzle8Game(GameMaster):
 
@@ -235,8 +249,7 @@ class Puzzle8Game(GameMaster):
         else:
             bottomRow.append((int(str(answers[0])[-1:])))
         finalTuple = (tuple(topRow), tuple(middleRow), tuple(bottomRow))
-        return(finalTuple)
-
+        return (finalTuple)
 
     def makeMove(self, movable_statement):
         """
@@ -261,49 +274,15 @@ class Puzzle8Game(GameMaster):
         oldy = str(sl[2])
         newx = str(sl[3])
         newy = str(sl[4])
-        # Get adjacents of tile
-        ask = parse_input("fact: (adjacent " + tile + " ?x)")
-        answers = self.kb.kb_ask(ask)
-        tileAdjacents = list()
-        for answer in answers:
-            adjacentTile = str(answer).split()[-1]
-            if adjacentTile != tile:
-                tileAdjacents.append(adjacentTile)
-        ask = parse_input("fact: (adjacent empty ?x)")
-        answers = self.kb.kb_ask(ask)
-        emptyAdjacents = list()
-        for answer in answers:
-            adjacentTile = str(answer).split()[-1]
-            if adjacentTile != "empty":
-                emptyAdjacents.append(adjacentTile)
-        # Switch adjacents of tiles
-        for adjacent in tileAdjacents:
-            statement = parse_input("fact: (adjacent " + adjacent + " " + tile + ")")
 
-            self.kb.kb_retract(statement)
-            if adjacent == "empty":
-                statement3 = parse_input("fact: (adjacent " + tile + " empty)")
-            else:
-                statement3 = parse_input("fact: (adjacent " + adjacent + " empty)")
-            self.kb.kb_assert(statement3)
-        for adjacent in emptyAdjacents:
-            statement2 = parse_input("fact: (adjacent " + adjacent + " empty)")
-            self.kb.kb_retract(statement2)
-            if adjacent == tile:
-                statement4 = parse_input("fact: (adjacent " + tile + " empty)")
-            else:
-                statement4 = parse_input("fact: (adjacent " + adjacent + " " + tile + ")")
-            self.kb.kb_assert(statement4)
-        # Change positions of tiles
-        statement5 = parse_input("fact: (position " + tile + " " + newx + " " + newy + ")")
-        self.kb.kb_assert(statement5)
-        statement6 = parse_input("fact: (position empty " + oldx + " " + oldy + ")")
-        self.kb.kb_assert(statement6)
         statement7 = parse_input("fact: (position " + tile + " " + oldx + " " + oldy + ")")
         self.kb.kb_retract(statement7)
         statement8 = parse_input("fact: (position empty " + newx + " " + newy + ")")
         self.kb.kb_retract(statement8)
-
+        statement5 = parse_input("fact: (position " + tile + " " + newx + " " + newy + ")")
+        self.kb.kb_assert(statement5)
+        statement6 = parse_input("fact: (position empty " + oldx + " " + oldy + ")")
+        self.kb.kb_assert(statement6)
 
     def reverseMove(self, movable_statement):
         """
